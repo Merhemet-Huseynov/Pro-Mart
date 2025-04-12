@@ -1,0 +1,81 @@
+services:
+  users_service:
+    build:
+      context: ./promart/services/users_services
+      dockerfile: Dockerfile
+    container_name: users_service
+    env_file: ./promart/services/users_services/.env.docker
+    ports:
+      - "8002:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - promart-network
+    command: python manage.py runserver 0.0.0.0:8000
+
+  products_service:
+    build:
+      context: ./promart/services/products_services
+      dockerfile: Dockerfile
+    container_name: products_service
+    env_file: ./promart/services/products_services/.env.docker
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - promart-network
+    command: python manage.py runserver 0.0.0.0:8000
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: promart
+      POSTGRES_USER: promartuser
+      POSTGRES_PASSWORD: secret123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./promart/services/postgres_init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U promartuser -d promart"]
+      interval: 10s
+      retries: 10
+      start_period: 60s
+    networks:
+      - promart-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - promart-network
+
+  celery_users:
+    build:
+      context: ./promart/services/users_services
+      dockerfile: Dockerfile.celery
+    container_name: celery_users
+    env_file: ./promart/services/users_services/.env.docker
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - promart-network
+
+volumes:
+  postgres_data:
+
+networks:
+  promart-network:
+    driver: bridge
