@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don"t run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -90,7 +90,7 @@ WSGI_APPLICATION = "users_services.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-POSTGRES_HOST = "my-postgres" if os.getenv(
+POSTGRES_HOST = "postgres" if os.getenv(
     "DOCKERIZED", 
     default="False"
 ) == "True" else "localhost"
@@ -158,8 +158,9 @@ AUTH_USER_MODEL = "users.CustomUser"
 # CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 
 # Docker
-CELERY_BROKER_URL = 'redis://users_services-redis-1:6379/0'
-CELERY_RESULT_BACKEND = 'redis://users_services-redis-1:6379/0'
+# Docker
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 
 
 # Serialization format of tasks (optional)
