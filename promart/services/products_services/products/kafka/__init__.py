@@ -1,0 +1,1 @@
+from .producer import send_product_created_event

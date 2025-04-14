@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'products_services.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-POSTGRES_HOST = "my-postgres" if os.getenv(
+POSTGRES_HOST = "postgres" if os.getenv(
     "DOCKERIZED", 
     default="False"
 ) == "True" else "localhost"
@@ -154,3 +154,6 @@ SWAGGER_SETTINGS = {
     },
     "USE_SESSION_AUTH": False,  
 }
+
+KAFKA_BOOTSTRAP_SERVERS = "kafka:9092"
+KAFKA_TOPIC_NAME = "product_events"

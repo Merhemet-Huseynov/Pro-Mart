@@ -3,7 +3,9 @@ from rest_framework.views import APIView, Response, status
 from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
+from products.kafka import send_product_created_event
 from products.models import Product
 from products.serializers import ProductSerializer
 
@@ -20,6 +22,13 @@ class ProductsListAPIView(APIView):
     API endpoint for listing all products and creating a new product.
     """
 
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
     @swagger_auto_schema(
         operation_summary="List all products",
         responses={200: ProductSerializer(many=True)},
@@ -35,23 +44,41 @@ class ProductsListAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_summary="Create a new product",
-        request_body=ProductSerializer,
-        responses={201: ProductSerializer},
-        tags=["Products"]
+    operation_summary="Create a new product",
+    request_body=ProductSerializer,
+    responses={201: ProductSerializer},
+    tags=["Products"]
     )
     def post(self, request):
         """
-        Creates a new product with provided data.
+        Creates a new product with provided data and sends Kafka event.
         """
+
+        if request.user.user_type != "seller":
+            return Response({"detail": "Only sellers can create products."}, status=status.HTTP_403_FORBIDDEN)
+
         serializer = ProductSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            logger.info(f"Created new product: {serializer.data.get('name')}")
+            product = serializer.save(user_id=request.user.id)
+
+            try:
+                send_product_created_event({
+                    "name": product.name,
+                    "price": str(product.price),
+                    "stock": product.stock,
+                    "status": product.status,
+                    "user_id": product.user_id,
+                    "create_at": product.create_at.isoformat()
+                })
+            except Exception as e:
+                logger.error(f"Kafka event failed: {e}")
+
+            logger.info(f"Created new product: {product.name}")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         logger.warning("Failed to create product due to validation error")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+   
 
 class ProductDetailAPIView(APIView):
     """
