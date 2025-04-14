@@ -159,8 +159,13 @@ AUTH_USER_MODEL = "users.CustomUser"
 
 # Docker
 # Docker
+<<<<<<< HEAD
 CELERY_BROKER_URL = "redis://redis:6379/0"
 CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+=======
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
 
 
 # Serialization format of tasks (optional)
@@ -192,9 +197,12 @@ REST_FRAMEWORK = {
 	], 
 }
 
+<<<<<<< HEAD
 # Kafka conf
 KAFKA_BOOTSTRAP_SERVERS = "kafka:9092"
 
+=======
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
 # Path and URL of media files
 MEDIA_URL = "/media/" 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")

@@ -8,7 +8,10 @@ click-didyoumean==0.3.1
 click-plugins==1.1.1
 click-repl==0.3.0
 colorama==0.4.6
+<<<<<<< HEAD
 confluent-kafka==2.9.0
+=======
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
 Django==5.2
 django-appconf==1.1.0
 django-celery-email==3.0.0
@@ -22,11 +25,18 @@ elasticsearch==8.17.2
 elasticsearch-dsl==8.17.1
 inflection==0.5.1
 iniconfig==2.1.0
+<<<<<<< HEAD
 kafka-python==2.1.5
 kombu==5.5.2
 packaging==24.2
 pillow==11.1.0
 pluggy==1.5.0
+=======
+kombu==5.5.2
+packaging==24.2
+pluggy==1.5.0
+pillow==11.1.0
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
 prompt_toolkit==3.0.50
 psycopg==3.2.6
 psycopg2-binary==2.9.10
@@ -44,4 +54,8 @@ tzdata==2025.2
 uritemplate==4.1.1
 urllib3==2.4.0
 vine==5.1.0
+<<<<<<< HEAD
 wcwidth==0.2.13
+=======
+wcwidth==0.2.13
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41

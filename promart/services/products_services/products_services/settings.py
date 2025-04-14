@@ -153,7 +153,11 @@ SWAGGER_SETTINGS = {
         }
     },
     "USE_SESSION_AUTH": False,  
+<<<<<<< HEAD
 }
 
 KAFKA_BOOTSTRAP_SERVERS = "kafka:9092"
 KAFKA_TOPIC_NAME = "product_events"
+=======
+}
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41

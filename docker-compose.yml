@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 version: '3.8'
 
 services:
@@ -28,6 +29,9 @@ services:
       timeout: 10s
       retries: 5
 
+=======
+services:
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
   users_service:
     build:
       context: ./promart/services/users_services
@@ -43,7 +47,11 @@ services:
         condition: service_started
     networks:
       - promart-network
+<<<<<<< HEAD
     command: sh -c "sleep 30 && python manage.py runserver 0.0.0.0:8000"
+=======
+    command: python manage.py runserver 0.0.0.0:8000
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
 
   products_service:
     build:
@@ -97,6 +105,7 @@ services:
     container_name: celery_users
     env_file: ./promart/services/users_services/.env.docker
     depends_on:
+<<<<<<< HEAD
       kafka:
         condition: service_healthy  # Kafka konteynerinin sağlam olduğunu gözləyir
       redis:
@@ -106,10 +115,22 @@ services:
     networks:
       - promart-network
     command: celery -A users_services.celery_app worker --loglevel=info
+=======
+      - redis
+      - postgres
+    networks:
+      - promart-network
+
+volumes:
+  postgres_data:
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
 
 networks:
   promart-network:
     driver: bridge
+<<<<<<< HEAD
 
 volumes:
   postgres_data:
+=======
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41

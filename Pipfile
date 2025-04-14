@@ -7,6 +7,10 @@ name = "pypi"
 python-dotenv = "*"
 django = "*"
 pytest = "*"
+<<<<<<< HEAD
+=======
+celery = "*"
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
 redis = "*"
 elasticsearch = "*"
 django-elasticsearch-dsl = "*"
@@ -19,8 +23,11 @@ psycopg = "*"
 psycopg2 = "*"
 psycopg2-binary = "*"
 pillow = "*"
+<<<<<<< HEAD
 kafka-python = "*"
 celery = {extras = ["redis", "kafka"], version = "*"}
+=======
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
 
 [dev-packages]
 pytest = "*"

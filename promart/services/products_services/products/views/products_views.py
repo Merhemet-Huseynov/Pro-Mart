@@ -3,9 +3,13 @@ from rest_framework.views import APIView, Response, status
 from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+<<<<<<< HEAD
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from products.kafka import send_product_created_event
+=======
+
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
 from products.models import Product
 from products.serializers import ProductSerializer
 
@@ -22,6 +26,7 @@ class ProductsListAPIView(APIView):
     API endpoint for listing all products and creating a new product.
     """
 
+<<<<<<< HEAD
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
@@ -29,6 +34,8 @@ class ProductsListAPIView(APIView):
             return [AllowAny()]
         return [IsAuthenticated()]
 
+=======
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
     @swagger_auto_schema(
         operation_summary="List all products",
         responses={200: ProductSerializer(many=True)},
@@ -44,6 +51,7 @@ class ProductsListAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
+<<<<<<< HEAD
     operation_summary="Create a new product",
     request_body=ProductSerializer,
     responses={201: ProductSerializer},
@@ -79,6 +87,25 @@ class ProductsListAPIView(APIView):
         logger.warning("Failed to create product due to validation error")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
    
+=======
+        operation_summary="Create a new product",
+        request_body=ProductSerializer,
+        responses={201: ProductSerializer},
+        tags=["Products"]
+    )
+    def post(self, request):
+        """
+        Creates a new product with provided data.
+        """
+        serializer = ProductSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            logger.info(f"Created new product: {serializer.data.get('name')}")
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        logger.warning("Failed to create product due to validation error")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
 
 class ProductDetailAPIView(APIView):
     """

@@ -1,7 +1,11 @@
 {
     "_meta": {
         "hash": {
+<<<<<<< HEAD
             "sha256": "dcaa28ddfea2acc14d0d07776aba0cdaa7a1109bedacaf28e74ca26eec117d1d"
+=======
+            "sha256": "2c0e3fc4d4df9f747b0ce5c3b98a8407e1f5a5984b391cb59ba55f76199043dc"
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
         },
         "pipfile-spec": 6,
         "requires": {
@@ -41,14 +45,21 @@
             "version": "==4.2.1"
         },
         "celery": {
+<<<<<<< HEAD
             "extras": [
                 "kafka",
                 "redis"
             ],
+=======
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
             "hashes": [
                 "sha256:2af9109a10fe28155044f4c387ce0e5e7f1fc89f9584cfb4b0df94f99a5fedc7",
                 "sha256:9f4f9e57e36000c097c1b6f7a8ab29814b82771e5439836f83915823809729c8"
             ],
+<<<<<<< HEAD
+=======
+            "index": "pypi",
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
             "markers": "python_version >= '3.8'",
             "version": "==5.5.1"
         },
@@ -210,6 +221,7 @@
             "markers": "python_version >= '3.8'",
             "version": "==2.1.0"
         },
+<<<<<<< HEAD
         "kafka-python": {
             "hashes": [
                 "sha256:205953e581c0371cada35bebdacc58ac7dee6c3f9e8d95b9a6a0a7bacc054ca0",
@@ -218,6 +230,8 @@
             "index": "pypi",
             "version": "==2.1.5"
         },
+=======
+>>>>>>> 0fcf8c5f75a945c84a88977ec1336a8f80e94c41
         "kombu": {
             "hashes": [
                 "sha256:2dd27ec84fd843a4e0a7187424313f87514b344812cb98c25daddafbb6a7ff0e",
