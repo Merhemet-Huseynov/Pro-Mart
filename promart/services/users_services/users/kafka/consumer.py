@@ -1,60 +1,30 @@
-from kafka import KafkaConsumer, errors
+from kafka import KafkaProducer
 import json
-import threading
-import time
-from users.models import CustomUser
-from django.db.utils import IntegrityError
+from typing import Any, Dict, Optional
 
-__all__ = [
-    "consume_product_created",
-    "start_consumer"
-]
+_producer: Optional[KafkaProducer] = None
 
-def consume_product_created():
-    max_retries = 5
-    retry_delay = 5
+def get_kafka_producer() -> KafkaProducer:
+    """
+    Lazily initialize and return a KafkaProducer instance.
 
-    for attempt in range(max_retries):
-        try:
-            consumer = KafkaConsumer(
-                "product_created",
-                bootstrap_servers="kafka:9092",
-                auto_offset_reset="earliest",
-                group_id="user-service-group",
-                value_deserializer=lambda m: json.loads(m.decode("utf-8"))
-            )
-            print("✅ Listening to \"product_created\" topic...")
-            break
-        except errors.NoBrokersAvailable:
-            print(f"❌ Kafka not available yet. Retry {attempt + 1}/{max_retries}...")
-            time.sleep(retry_delay)
-    else:
-        print("🔥 Kafka connection failed after retries.")
-        return
+    Returns:
+        KafkaProducer: The initialized Kafka producer.
+    """
+    global _producer
+    if _producer is None:
+        _producer = KafkaProducer(
+            bootstrap_servers=["kafka:9092"],
+            value_serializer=lambda v: json.dumps(v).encode("utf-8")
+        )
+    return _producer
 
-    for message in consumer:
-        data = message.value
-        print("🔔 New message received:", data)
+def send_product_created_event(data: Dict[str, Any]) -> None:
+    """
+    Send a "product_created" event with the given data to the Kafka topic.
 
-        user_id = data.get("user_id")
-        email = f"user{user_id}@gmail.com"
-
-        try:
-            CustomUser.objects.get(id=user_id)
-            print(f"🔎 User with ID {user_id} already exists.")
-        except CustomUser.DoesNotExist:
-            try:
-                CustomUser.objects.create(
-                    id=user_id,
-                    email=email,
-                    user_type="seller"
-                )
-                print(f"✅ Created user with ID {user_id}")
-            except IntegrityError:
-                print(f"⚠️ IntegrityError: User with ID {user_id} already exists")
-
-def start_consumer():
-    thread = threading.Thread(target=consume_product_created)
-    thread.daemon = True
-    thread.start()
-Pro-Mart/promart/services/users_services/users/kafka/consumer.py
+    Args:
+        data (Dict[str, Any]): The product data to be sent as a message.
+    """
+    producer = get_kafka_producer()
+    producer.send("product_created", data)

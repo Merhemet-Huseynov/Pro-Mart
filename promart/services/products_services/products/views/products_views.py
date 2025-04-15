@@ -8,6 +8,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from products.kafka import send_product_created_event
 from products.models import Product
 from products.serializers import ProductSerializer
+from utils.jwt_utils import get_user_from_token
 
 logger = logging.getLogger(__name__)
 
@@ -44,22 +45,27 @@ class ProductsListAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-    operation_summary="Create a new product",
-    request_body=ProductSerializer,
-    responses={201: ProductSerializer},
-    tags=["Products"]
+        operation_summary="Create a new product",
+        request_body=ProductSerializer,
+        responses={201: ProductSerializer},
+        tags=["Products"]
     )
     def post(self, request):
         """
         Creates a new product with provided data and sends Kafka event.
         """
+        try:
+            user_data = get_user_from_token(request)
+        except Exception as e:
+            logger.warning(f"Auth error: {e}")
+            return Response({"detail": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        if request.user.user_type != "seller":
+        if user_data["user_type"] != "seller":
             return Response({"detail": "Only sellers can create products."}, status=status.HTTP_403_FORBIDDEN)
 
         serializer = ProductSerializer(data=request.data)
         if serializer.is_valid():
-            product = serializer.save(user_id=request.user.id)
+            product = serializer.save(user_id=user_data["id"])
 
             try:
                 send_product_created_event({
@@ -111,13 +117,17 @@ class ProductDetailAPIView(APIView):
         """
         product = get_object_or_404(Product, id=product_id)
         serializer = ProductSerializer(product, data=request.data, partial=True)
+        
+        if product.user_id != request.user.id:
+            return Response({"detail": "Not allowed."}, status=status.HTTP_403_FORBIDDEN)
+    
         if serializer.is_valid():
             serializer.save()
             logger.info(f"Updated product ID: {product_id}")
             return Response(serializer.data, status=status.HTTP_200_OK)
         logger.warning(f"Failed to update product ID: {product_id}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    
     @swagger_auto_schema(
         operation_summary="Delete a product by ID",
         responses={204: "No Content", 404: "Not Found"},

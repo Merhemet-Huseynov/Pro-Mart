@@ -7,4 +7,4 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = "__all__"
-        read_only_fields = ['user_id']
+        read_only_fields = [user_id]

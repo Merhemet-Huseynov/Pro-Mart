@@ -18,7 +18,7 @@ services:
     ports:
       - "9092:9092"
     healthcheck:
-      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      test: ["CMD-SHELL", "nc -z localhost 9092"]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -104,6 +104,7 @@ services:
     depends_on:
       - redis
       - postgres
+      - kafka
     networks:
       - promart-network
 
