@@ -177,3 +177,7 @@ SIMPLE_JWT = {
     "SIGNING_KEY": os.getenv("JWT_SIGNING_KEY", SECRET_KEY),
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
+import os
+
+GATEWAY_URL = os.getenv("GATEWAY_URL", "http://gateway:8000")

@@ -108,9 +108,26 @@ services:
     networks:
       - promart-network
 
+  gateway:
+    build:
+      context: ./promart/services/gateway
+      dockerfile: Dockerfile
+    container_name: gateway
+    ports:
+      - "8000:8000"
+    networks:
+      - promart-network
+    depends_on:
+      - users_service
+      - products_service
+      - kafka
+    volumes:
+      - ./promart/services/gateway:/app
+
 networks:
   promart-network:
     driver: bridge
 
 volumes:
   postgres_data:
+
