@@ -47,5 +47,11 @@ urlpatterns = [
         ProductSearchView.as_view(),
         name='product-search'
     ),
+    
+    path(
+        'filter/',
+        ProductFilterAPIView.as_view(),
+        name='product_filter_api'
+    ),
 ]
 

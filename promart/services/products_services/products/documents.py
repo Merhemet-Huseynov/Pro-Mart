@@ -23,3 +23,25 @@ class ProductDocument(Document):
         fields = [
             'id',
         ]
+
+
+def get_filtered_products(min_price=None, max_price=None):
+    search = ProductDocument.search()
+    if min_price is not None and max_price is not None:
+        search = search.filter('range', price={'gte': min_price, 'lte': max_price})
+    elif min_price is not None:
+        search = search.filter('range', price={'gte': min_price})
+    elif max_price is not None:
+        search = search.filter('range', price={'lte': max_price})
+    
+    results = search.execute()
+    products = [
+        {
+            'id': hit.id,
+            'name': hit.name,
+            'description': hit.description,
+            'price': hit.price,
+            'stock': hit.stock
+        } for hit in results
+    ]
+    return products

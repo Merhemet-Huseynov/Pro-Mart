@@ -33,7 +33,7 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"  # JVM heap yaddaşı 1 GB olaraq təyin edilir
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"  
     ports:
       - "9200:9200"
     mem_limit: 2g  # Yaddaş limitini 2 GB-a endirin
