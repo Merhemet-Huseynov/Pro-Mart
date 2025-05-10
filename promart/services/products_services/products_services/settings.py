@@ -222,3 +222,19 @@ ELASTICSEARCH_DSL = {
         'hosts': 'http://elasticsearch:9200'  # Docker şəbəkəsindəki Elasticsearch konteyneri
     },
 }
+
+
+# Cache configuration
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
+CACHE_MIDDLEWARE_ALIAS = "default"  
+CACHE_MIDDLEWARE_SECONDS = 600  
+CACHE_MIDDLEWARE_KEY_PREFIX = "django_cache"  
