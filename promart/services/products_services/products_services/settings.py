@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     
     # Third party
     "django_celery_beat",
+    'django_elasticsearch_dsl',
     "rest_framework",
     "drf_yasg",
     
@@ -213,5 +214,11 @@ CELERY_BEAT_SCHEDULE = {
     "delete-expired-products-every-day": {
         "task": "products.tasks.remove_expired_products",
         "schedule": crontab(hour=0, minute=0), 
+    },
+}
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'http://elasticsearch:9200'  # Docker şəbəkəsindəki Elasticsearch konteyneri
     },
 }
