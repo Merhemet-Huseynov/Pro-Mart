@@ -1,5 +1,4 @@
 from rest_framework import serializers
-
 from products.models import Category
 
 
@@ -46,6 +45,4 @@ class SubCategorySerializer(serializers.ModelSerializer):
             "is_active", 
             "super_category"
         )
-        extra_kwargs = {
-            "super_category": {"required": True}
-        }
+       

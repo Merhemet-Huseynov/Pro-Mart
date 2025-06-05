@@ -158,9 +158,8 @@ AUTH_USER_MODEL = "users.CustomUser"
 # CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 
 # Docker
-# Docker
-CELERY_BROKER_URL = 'redis://redis:6379/0'
-CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
 
 
 # Serialization format of tasks (optional)
@@ -186,11 +185,16 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
-REST_FRAMEWORK = { 
-	"DEFAULT_AUTHENTICATION_CLASSES": [ 
-		"rest_framework_simplejwt.authentication.JWTAuthentication", 
-	], 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
 }
+
+
+# Kafka conf
+KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092")
+KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "users_topic")
 
 # Path and URL of media files
 MEDIA_URL = "/media/" 
@@ -217,3 +221,8 @@ SWAGGER_SETTINGS = {
     },
     "USE_SESSION_AUTH": False,  
 }
+
+REDIS_HOST = os.getenv("REDIS_HOST", "redis")
+REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+REDIS_DB = int(os.getenv("REDIS_DB", 0))

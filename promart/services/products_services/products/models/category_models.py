@@ -101,8 +101,7 @@ class Category(models.Model):
         if self.super_category is not None:
             return self.super_category.name
         return None
-
-    @property
+    
     def is_subcategory(self) -> bool:
         """
         Returns True if the category is a subcategory, False otherwise.

@@ -1,4 +1,32 @@
 services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - promart-network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092  
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+      - "29092:29092"  
+    networks:
+      - promart-network
+
   users_service:
     build:
       context: ./promart/services/users_services
@@ -6,46 +34,63 @@ services:
     container_name: users_service
     env_file: ./promart/services/users_services/.env.docker
     ports:
-      - "8002:8000"
+      - "8002:8002"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_started
+      kafka:
+        condition: service_started
     networks:
       - promart-network
-    command: python manage.py runserver 0.0.0.0:8000
-
+    command: sh -c "sleep 35 && python manage.py runserver 0.0.0.0:8002"
+  
   products_service:
+    environment:
+      - PYTHONPATH=/app:/app/promart/services
+      - DJANGO_SETTINGS_MODULE=products_services.settings
     build:
       context: ./promart/services/products_services
       dockerfile: Dockerfile
     container_name: products_service
     env_file: ./promart/services/products_services/.env.docker
     ports:
-      - "8001:8000"
+      - "8001:8001"
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - promart-network
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8001
+
+    orders_service:
+      build:
+        context: ./promart/services/orders_services
+        dockerfile: Dockerfile
+      container_name: orders_service
+      env_file: ./promart/services/orders_services/.env.docker
+      ports:
+        - "8003:8003"
+      depends_on:
+        - postgres
+        - kafka
+      networks:
+        - promart-network
+      command: sh -c "sleep 35 && python manage.py consume_products"
 
   postgres:
     image: postgres:15
     container_name: postgres
+    env_file: ./.env.docker
     restart: always
-    environment:
-      POSTGRES_DB: promart
-      POSTGRES_USER: promartuser
-      POSTGRES_PASSWORD: secret123
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./promart/services/postgres_init/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U promartuser -d promart"]
+      test: ["CMD-SHELL", "pg_isready -U productuser -d productdb"]
       interval: 10s
       retries: 10
       start_period: 60s
@@ -70,12 +115,73 @@ services:
     depends_on:
       - redis
       - postgres
+      - kafka
+    networks:
+      - promart-network
+    
+  celery_products:
+    build:
+      context: ./promart/services/products_services
+      dockerfile: Dockerfile.celery
+    container_name: celery_products
+    env_file: ./promart/services/products_services/.env.docker
+    depends_on:
+      - redis
+      - postgres
+      - kafka
     networks:
       - promart-network
 
-volumes:
-  postgres_data:
+  celery_beat_products:
+    build:
+      context: ./promart/services/products_services
+      dockerfile: Dockerfile.celery
+    container_name: celery_beat_products
+    env_file: ./promart/services/products_services/.env.docker
+    depends_on:
+      - redis
+      - postgres
+      - kafka
+      - celery_products
+    command: celery -A products_services beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    networks:
+      - promart-network
+
+  payments_service:
+    build:
+      context: ./promart/services/payments_services
+      dockerfile: Dockerfile
+    container_name: payments_service
+    env_file: ./promart/services/payments_services/.env.docker
+    ports:
+      - "8004:8004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - promart-network
+    command: python manage.py runserver 0.0.0.0:8004
+
+  payments_kafka_consumer:
+    build:
+      context: ./promart/services/payments_services
+      dockerfile: Dockerfile
+    container_name: payments_kafka_consumer
+    env_file: ./promart/services/payments_services/.env.docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - promart-network
+    command: python manage.py run_kafka_consumers
 
 networks:
   promart-network:
     driver: bridge
+
+volumes:
+  postgres_data:
