@@ -3,6 +3,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+from utils.cache_time import TimeIntervals
 
 from products.models import Category
 from products.serializers import CategorySerializer, SubCategorySerializer
@@ -12,7 +15,7 @@ __all__ = [
     "SubCategoryAPIView"
 ]
 
-
+@method_decorator(cache_page(TimeIntervals.ONE_MONTH_IN_SEC), name="dispatch")
 class SuperCategoryAPIView(APIView):
     """
     API endpoint for listing all super categories.
@@ -34,8 +37,9 @@ class SuperCategoryAPIView(APIView):
         categories = Category.objects.filter(super_category__isnull=True)
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
 
-
+@method_decorator(cache_page(TimeIntervals.ONE_MONTH_IN_SEC), name="dispatch")
 class SubCategoryAPIView(APIView):
     """
     API endpoint for listing all sub-categories under a specific super category.

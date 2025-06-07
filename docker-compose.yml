@@ -27,6 +27,27 @@ services:
     networks:
       - promart-network
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"  
+    ports:
+      - "9200:9200"
+    mem_limit: 2g  # Yaddaş limitini 2 GB-a endirin
+    mem_reservation: 1g  # Rezervasiyanı 1 GB-a endirin
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q 'status\":\"green'"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+    networks:
+      - promart-network
+
   users_service:
     build:
       context: ./promart/services/users_services
@@ -185,3 +206,4 @@ networks:
 
 volumes:
   postgres_data:
+  elasticsearch_data:
